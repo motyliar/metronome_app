@@ -15,9 +15,9 @@ part 'metronome_state.dart';
 
 class MetronomeCubit extends Cubit<MetronomeState> {
   final StartTimerUsecase _start;
-  final SendMessageUsecase _send;
+  final ConnectUsecase _send;
   MetronomeCubit(
-      {required StartTimerUsecase start, required SendMessageUsecase send})
+      {required StartTimerUsecase start, required ConnectUsecase send})
       : _start = start,
         _send = send,
         super(MetronomeState(accents: AccentHandler()));

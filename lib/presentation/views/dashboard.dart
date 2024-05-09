@@ -18,7 +18,7 @@ class Dashboard extends StatelessWidget {
     return BlocProvider(
       create: (context) => MetronomeCubit(
           start: StartTimerUsecase(tick: MetronomeTickImpl()),
-          send: SendMessageUsecase(native: NativeCommunicatorImpl())),
+          send: ConnectUsecase(native: NativeCommunicatorImpl())),
       child: Scaffold(
         body: SafeArea(child: BlocBuilder<MetronomeCubit, MetronomeState>(
           builder: (context, state) {
