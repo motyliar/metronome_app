@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:metronome/domain/inputs/audio_inputs.dart';
 import 'package:metronome/domain/native_comunicator/native_communicator.dart';
@@ -8,10 +7,10 @@ const String _methodName = "play";
 
 class NativeCommunicatorImpl extends NativeCommunicator {
   @override
-  void sendMessage(AudioInputs inputs) async {
+  Future<void> connect(AudioInputs inputs) async {
     final arguments = _inputToArgument(inputs);
     final channel = _createChannel();
-    await channel.invokeMethod("play", arguments);
+    await channel.invokeMethod(_methodName, arguments);
   }
 
   Map<String, dynamic> _inputToArgument(AudioInputs inputs) =>

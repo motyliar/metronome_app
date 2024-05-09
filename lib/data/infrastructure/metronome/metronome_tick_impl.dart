@@ -24,7 +24,7 @@ class MetronomeTickImpl implements MetronomeTick {
   Stream<int> start(MetronomeInputs inputs) {
     controller = null;
     controller = StreamController<int>();
-    int step = 0;
+
     final stream = initStream();
     _streamInitializer(inputs.durationInMilliseconds);
 
