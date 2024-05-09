@@ -3,7 +3,7 @@ package com.example.metronome.wave
 import kotlin.math.sign
 import kotlin.math.sin
 
-class SquareWave(frequency: Double, time: Int) : TableWaveGenerator(frequency, time) {
+open class SquareWave(frequency: Double, time: Int) : TableWaveGenerator(frequency, time) {
 
     override fun generateSound(): ShortArray {
         val numSample = timeCalculator()
@@ -16,3 +16,7 @@ class SquareWave(frequency: Double, time: Int) : TableWaveGenerator(frequency, t
         return wave
     }
 }
+
+object HighSquareWave: SquareWave(frequency = 640.0, time =  10)
+object MidSquareWave: SquareWave(frequency = 540.0, time = 10)
+object LowSqureWave: SquareWave(frequency = 440.0, time = 10)
