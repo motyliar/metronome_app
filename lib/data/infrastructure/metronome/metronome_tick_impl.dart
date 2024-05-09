@@ -4,36 +4,55 @@ import 'package:metronome/domain/inputs/metronome_d.dart';
 import 'package:metronome/domain/metronome/metronome_tick.dart';
 
 class MetronomeTickImpl implements MetronomeTick {
-  late StreamSubscription<int> sub;
+  StreamController<int>? controller;
+  StreamSubscription<int>? sub;
+  Timer? timer;
+  int step = 0;
 
   @override
   void pause() {
-    sub.pause();
+    if (sub != null) sub?.pause();
+    timer?.cancel();
   }
 
   @override
   void resume() {
-    if (sub.isPaused) {
-      sub.resume();
-    }
+    _streamInitializer(const MetronomeInputs().durationInMilliseconds);
   }
 
   @override
-  int start(MetronomeInputs inputs) {
+  Stream<int> start(MetronomeInputs inputs) {
+    controller = null;
+    controller = StreamController<int>();
     int step = 0;
-    sub = _streamInitializer(inputs.durationInMilliseconds).listen((event) {
-      step = 0;
-    });
-    return step;
+    final stream = initStream();
+    _streamInitializer(inputs.durationInMilliseconds);
+
+    return stream;
   }
 
   @override
   void stop() {
-    sub.cancel();
+    sub?.cancel();
+    timer?.cancel();
+    step = 0;
   }
 
-  Stream<int> _streamInitializer(int durationInMilliseconds) {
-    return Stream.periodic(
-        Duration(milliseconds: durationInMilliseconds), (value) => value);
+  void _streamInitializer(int durationInMilliseconds) {
+    Timer.run(() {
+      controller?.add(step);
+      timer = Timer.periodic(Duration(milliseconds: durationInMilliseconds),
+          (timer) {
+        step++;
+        controller?.add(step);
+      });
+    });
+  }
+
+  Stream<int> initStream() {
+    return controller!.stream;
   }
 }
+
+///
+///dodac funkcje do anulowania wszystkiego przy inicjalizacji
