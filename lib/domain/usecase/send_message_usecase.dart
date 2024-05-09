@@ -1,3 +1,4 @@
+import 'package:metronome/domain/inputs/audio_inputs.dart';
 import 'package:metronome/domain/native_comunicator/native_communicator.dart';
 
 class SendMessageUsecase {
@@ -5,7 +6,7 @@ class SendMessageUsecase {
       : _nativeCommunicator = native;
   final NativeCommunicator _nativeCommunicator;
 
-  void execute(String name) {
-    _nativeCommunicator.sendMessage(name);
+  void execute(AudioInputs inputs) {
+    _nativeCommunicator.sendMessage(inputs);
   }
 }
