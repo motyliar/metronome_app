@@ -2,9 +2,12 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:metronome/data/infrastructure/native_communicator/native_communicator_impl.dart';
+
+import 'package:metronome/domain/inputs/audio_inputs.dart';
 import 'package:metronome/domain/inputs/metronome_d.dart';
-import 'package:metronome/domain/native_comunicator/native_communicator.dart';
+import 'package:metronome/domain/metronome/accent_handler.dart';
+import 'package:metronome/domain/metronome/audio_asset.dart';
+
 import 'package:metronome/domain/usecase/send_message_usecase.dart';
 import 'package:metronome/domain/usecase/start_usecase.dart';
 
@@ -17,17 +20,22 @@ class MetronomeCubit extends Cubit<MetronomeState> {
       {required StartTimerUsecase start, required SendMessageUsecase send})
       : _start = start,
         _send = send,
-        super(const MetronomeState());
+        super(MetronomeState(accents: AccentHandler()));
   StreamSubscription? sub;
   void sendMessageToNative() {
     sub = _start.execute(const MetronomeInputs()).listen((event) {
       emit(MetronomeState(
           metrum: (event % state.tick) + 1,
           tick: state.tick,
-          sounds: state.sounds));
+          accents: state.accents));
       int index = event % state.tick;
 
-      NativeCommunicatorImpl().sendMessage(state.sounds[index]);
+      _send.execute(
+        AudioInputs(
+          assets: state.asset,
+          accent: state.accents.getAccent(index),
+        ),
+      );
     });
   }
 
@@ -38,13 +46,15 @@ class MetronomeCubit extends Cubit<MetronomeState> {
   }
 
   void changeMetrum() {
-    emit(MetronomeState(metrum: state.metrum, tick: 5, sounds: state.sounds));
+    final accents = AccentHandler();
+    accents.initAccents(5);
+    emit(MetronomeState(metrum: state.metrum, tick: 5, accents: accents));
   }
 
-  void changeSound() {
-    List<String> sounds = List.from(state.sounds);
-    sounds[2] = "karolek";
-    emit(
-        MetronomeState(metrum: state.metrum, tick: state.tick, sounds: sounds));
+  void changeAccent(int index, Accent accent) {
+    final accents = state.accents;
+    accents.changeAccent(index, accent);
+    emit(MetronomeState(
+        metrum: state.metrum, tick: state.tick, accents: accents));
   }
 }
