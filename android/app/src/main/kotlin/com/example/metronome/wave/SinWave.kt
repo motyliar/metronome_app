@@ -7,11 +7,16 @@ import kotlin.math.sin
     override fun generateSound(): ShortArray {
             val numSamples = timeCalculator()
             var wave = ShortArray(numSamples)
+            val pahase = 2 * Math.PI * frequency / sampleRate
+
+
+
 
             for(i in 0 until numSamples) {
-                val sample = (amplitude * sin(2 * Math.PI * frequency * i) / sampleRate).toInt()
+                val sample = (amplitude * sin(pahase * i) ).toInt()
                 wave[i] = sample.toShort()
             }
+
         return wave
     }
 }
