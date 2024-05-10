@@ -1,7 +1,7 @@
 import 'package:metronome/shared/services/containers/metronome_locator.dart';
 
 class GetInit {
-  Future<void> init() async {
+  static Future<void> init() async {
     initMetronome();
   }
 }

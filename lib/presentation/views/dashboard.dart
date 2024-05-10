@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+
 import 'package:metronome/data/infrastructure/metronome/metronome_tick_impl.dart';
-import 'package:metronome/data/infrastructure/native_communicator/native_communicator_impl.dart';
+
 import 'package:metronome/domain/metronome/accent_handler.dart';
 import 'package:metronome/domain/metronome/audio_asset.dart';
 
-import 'package:metronome/domain/usecase/send_message_usecase.dart';
-import 'package:metronome/domain/usecase/start_usecase.dart';
-import 'package:metronome/domain/usecase/stop_player_usecase.dart';
 import 'package:metronome/presentation/metronome/business/metronome/metronome_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:metronome/presentation/metronome/business/metronome/tempo_catcher/tempo_catcher_cubit.dart';
+import 'package:metronome/shared/services/containers/metronome_locator.dart';
 
 class Dashboard extends StatelessWidget {
   const Dashboard({super.key});
@@ -17,11 +16,15 @@ class Dashboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final MetronomeTickImpl metronome = MetronomeTickImpl();
-    return BlocProvider(
-      create: (context) => MetronomeCubit(
-          start: StartTimerUsecase(tick: metronome),
-          stop: StopPlayerUsecase(metronome: metronome),
-          send: ConnectUsecase(native: NativeCommunicatorImpl())),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => metronomeLocator<MetronomeCubit>(),
+        ),
+        BlocProvider(
+          create: (context) => metronomeLocator<TempoCatcherCubit>(),
+        ),
+      ],
       child: Scaffold(
         body: SafeArea(child: BlocBuilder<MetronomeCubit, MetronomeState>(
           builder: (context, state) {

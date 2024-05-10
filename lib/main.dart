@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:metronome/presentation/views/dashboard.dart';
+import 'package:metronome/shared/services/containers/get_init.dart';
 
 void main() {
+  GetInit.init();
   runApp(const MyApp());
 }
 

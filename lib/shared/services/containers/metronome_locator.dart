@@ -8,16 +8,20 @@ import 'package:metronome/domain/usecase/send_message_usecase.dart';
 import 'package:metronome/domain/usecase/start_usecase.dart';
 import 'package:metronome/domain/usecase/stop_player_usecase.dart';
 import 'package:metronome/presentation/metronome/business/metronome/metronome_cubit.dart';
+import 'package:metronome/presentation/metronome/business/metronome/tempo_catcher/tempo_catcher_cubit.dart';
 
 final metronomeLocator = GetIt.instance;
 
 void initMetronome() {
   metronomeLocator
-    ..registerFactory(() => MetronomeCubit(
+    ..registerFactory(
+      () => MetronomeCubit(
         start: metronomeLocator(),
         stop: metronomeLocator(),
         send: metronomeLocator(),
-        calculate: metronomeLocator()))
+      ),
+    )
+    ..registerFactory(() => TempoCatcherCubit(calculate: metronomeLocator()))
     ..registerLazySingleton(() => StartTimerUsecase(tick: metronomeLocator()))
     ..registerLazySingleton(
         () => StopPlayerUsecase(metronome: metronomeLocator()))
