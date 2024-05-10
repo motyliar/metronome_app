@@ -3,9 +3,11 @@ import 'package:flutter/widgets.dart';
 import 'package:metronome/data/infrastructure/metronome/metronome_tick_impl.dart';
 import 'package:metronome/data/infrastructure/native_communicator/native_communicator_impl.dart';
 import 'package:metronome/domain/metronome/accent_handler.dart';
+import 'package:metronome/domain/metronome/audio_asset.dart';
 
 import 'package:metronome/domain/usecase/send_message_usecase.dart';
 import 'package:metronome/domain/usecase/start_usecase.dart';
+import 'package:metronome/domain/usecase/stop_player_usecase.dart';
 import 'package:metronome/presentation/metronome/business/metronome/metronome_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -17,7 +19,8 @@ class Dashboard extends StatelessWidget {
     final MetronomeTickImpl metronome = MetronomeTickImpl();
     return BlocProvider(
       create: (context) => MetronomeCubit(
-          start: StartTimerUsecase(tick: MetronomeTickImpl()),
+          start: StartTimerUsecase(tick: metronome),
+          stop: StopPlayerUsecase(metronome: metronome),
           send: ConnectUsecase(native: NativeCommunicatorImpl())),
       child: Scaffold(
         body: SafeArea(child: BlocBuilder<MetronomeCubit, MetronomeState>(
@@ -30,7 +33,7 @@ class Dashboard extends StatelessWidget {
                   child: const Text('Play'),
                 ),
                 ElevatedButton(
-                  onPressed: () => metronome.stop(),
+                  onPressed: () => context.read<MetronomeCubit>().stop(),
                   child: const Text('Stop'),
                 ),
                 ElevatedButton(
@@ -52,6 +55,7 @@ class Dashboard extends StatelessWidget {
                       .changeAccent(2, Accent.high),
                   child: const Text('Accent'),
                 ),
+                const AudioAssetChooser(),
                 Text(state.metrum.toString()),
                 Padding(
                   padding: const EdgeInsets.only(left: 40, right: 40),
@@ -69,6 +73,37 @@ class Dashboard extends StatelessWidget {
             );
           },
         )),
+      ),
+    );
+  }
+}
+
+class AudioAssetChooser extends StatelessWidget {
+  const AudioAssetChooser({
+    this.text = const <String>["square", "sine", "tambourine"],
+    this.asset = const <AudioAsset>[
+      AudioAsset.square,
+      AudioAsset.sine,
+      AudioAsset.tambourine
+    ],
+    super.key,
+  });
+
+  final List<String> text;
+  final List<AudioAsset> asset;
+
+  @override
+  Widget build(BuildContext context) {
+    int size = asset.length;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: List.generate(
+        size,
+        (index) => ElevatedButton(
+          onPressed: () =>
+              context.read<MetronomeCubit>().setAudio(asset[index]),
+          child: Text(text[index]),
+        ),
       ),
     );
   }
