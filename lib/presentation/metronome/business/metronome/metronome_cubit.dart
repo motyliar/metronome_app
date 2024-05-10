@@ -101,13 +101,7 @@ class MetronomeCubit extends Cubit<MetronomeState> {
   }
 
   void setTempo(int durationInMilliseconds) {
-    emit(MetronomeState(
-      accents: state.accents,
-      metrum: state.metrum,
-      tick: state.tick,
-      asset: state.asset,
-      tempo: durationInMilliseconds,
-    ));
+    emit(state.copyWith(tempo: durationInMilliseconds));
     sub?.cancel();
     _stop.execute();
     sendMessageToNative();

@@ -21,6 +21,20 @@ class MetronomeState extends Equatable {
   final AudioAsset asset;
   final int tempo;
 
+  MetronomeState copyWith(
+          {int? metrum,
+          int? tick,
+          AccentHandler? accents,
+          AudioAsset? asset,
+          int? tempo}) =>
+      MetronomeState(
+        accents: accents ?? this.accents,
+        metrum: metrum ?? this.metrum,
+        tick: tick ?? this.tick,
+        asset: asset ?? this.asset,
+        tempo: tempo ?? this.tempo,
+      );
+
   @override
   List<Object> get props => [metrum, tick, accents, asset, tempo];
 }
