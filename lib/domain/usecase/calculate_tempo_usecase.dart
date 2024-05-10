@@ -2,7 +2,7 @@ import 'package:metronome/domain/metronome/manual_tempo_calculator.dart';
 
 const int _minuteInMilliseconds = 60000;
 
-class CalculateTempoUsecase extends ManualTempoCalculator {
+class CalculateTempoUsecase implements ManualTempoCalculator {
   DateTime? start;
   DateTime? end;
   @override
