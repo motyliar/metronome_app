@@ -13,12 +13,14 @@ class MetronomeState extends Equatable {
       {required this.accents,
       this.metrum = 1,
       this.tick = 4,
-      this.asset = AudioAsset.sine});
+      this.asset = AudioAsset.sine,
+      this.tempo = 60});
   final int metrum;
   final int tick;
   final AccentHandler accents;
   final AudioAsset asset;
+  final int tempo;
 
   @override
-  List<Object> get props => [metrum, tick, accents, asset];
+  List<Object> get props => [metrum, tick, accents, asset, tempo];
 }

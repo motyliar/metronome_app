@@ -14,6 +14,8 @@ import 'package:metronome/domain/usecase/stop_player_usecase.dart';
 
 part 'metronome_state.dart';
 
+const int _minuteInMilliseconds = 60000;
+
 class MetronomeCubit extends Cubit<MetronomeState> {
   final StartTimerUsecase _start;
   final StopPlayerUsecase _stop;
@@ -28,15 +30,18 @@ class MetronomeCubit extends Cubit<MetronomeState> {
         _send = send,
         super(MetronomeState(accents: AccentHandler()));
   StreamSubscription? sub;
+
   void sendMessageToNative() {
+    int duration = _minuteInMilliseconds ~/ state.tempo;
     sub = _start
-        .execute(const MetronomeInputs(durationInMilliseconds: 180))
+        .execute(MetronomeInputs(durationInMilliseconds: duration))
         .listen((event) {
       emit(MetronomeState(
           metrum: (event % state.tick) + 1,
           tick: state.tick,
           accents: state.accents,
-          asset: state.asset));
+          asset: state.asset,
+          tempo: state.tempo));
       int index = event % state.tick;
 
       _send.execute(
@@ -58,25 +63,53 @@ class MetronomeCubit extends Cubit<MetronomeState> {
   void changeMetrum() {
     final accents = AccentHandler();
     accents.initAccents(5);
-    emit(MetronomeState(
-        metrum: state.metrum, tick: 5, accents: accents, asset: state.asset));
+    emit(
+      MetronomeState(
+        metrum: state.metrum,
+        tick: 5,
+        accents: accents,
+        asset: state.asset,
+        tempo: state.tempo,
+      ),
+    );
   }
 
   void changeAccent(int index, Accent accent) {
     final accents = state.accents;
     accents.changeAccent(index, accent);
-    emit(MetronomeState(
+    emit(
+      MetronomeState(
         metrum: state.metrum,
         tick: state.tick,
         accents: accents,
-        asset: state.asset));
+        asset: state.asset,
+        tempo: state.tempo,
+      ),
+    );
   }
 
   void setAudio(AudioAsset asset) {
-    emit(MetronomeState(
+    emit(
+      MetronomeState(
         accents: state.accents,
         metrum: state.metrum,
         tick: state.tick,
-        asset: asset));
+        asset: asset,
+        tempo: state.tempo,
+      ),
+    );
+  }
+
+  void setTempo(int durationInMilliseconds) {
+    emit(MetronomeState(
+      accents: state.accents,
+      metrum: state.metrum,
+      tick: state.tick,
+      asset: state.asset,
+      tempo: durationInMilliseconds,
+    ));
+    sub?.cancel();
+    _stop.execute();
+    sendMessageToNative();
   }
 }
