@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 
 import 'package:metronome/domain/inputs/audio_inputs.dart';
 import 'package:metronome/domain/inputs/metronome_d.dart';
@@ -12,6 +13,7 @@ import 'package:metronome/domain/usecase/pause_metronome_usecase.dart';
 import 'package:metronome/domain/usecase/send_message_usecase.dart';
 import 'package:metronome/domain/usecase/start_usecase.dart';
 import 'package:metronome/domain/usecase/stop_player_usecase.dart';
+import 'package:metronome/shared/utils/debounce.dart';
 
 part 'metronome_state.dart';
 
@@ -40,12 +42,9 @@ class MetronomeCubit extends Cubit<MetronomeState> {
     sub = _start
         .execute(MetronomeInputs(durationInMilliseconds: duration))
         .listen((event) {
-      emit(MetronomeState(
-          metrum: (event % state.tick) + 1,
-          tick: state.tick,
-          accents: state.accents,
-          asset: state.asset,
-          tempo: state.tempo));
+      emit(state.copyWith(
+        metrum: (event % state.tick) + 1,
+      ));
       int index = event % state.tick;
 
       _send.execute(
@@ -67,47 +66,29 @@ class MetronomeCubit extends Cubit<MetronomeState> {
   void changeMetrum() {
     final accents = AccentHandler();
     accents.initAccents(5);
-    emit(
-      MetronomeState(
-        metrum: state.metrum,
-        tick: 5,
-        accents: accents,
-        asset: state.asset,
-        tempo: state.tempo,
-      ),
-    );
+    emit(state.copyWith(
+      tick: accents.length,
+      accents: accents,
+    ));
   }
 
   void changeAccent(int index, Accent accent) {
     final accents = state.accents;
     accents.changeAccent(index, accent);
-    emit(
-      MetronomeState(
-        metrum: state.metrum,
-        tick: state.tick,
-        accents: accents,
-        asset: state.asset,
-        tempo: state.tempo,
-      ),
-    );
+    emit(state.copyWith(accents: accents));
   }
 
   void setAudio(AudioAsset asset) {
-    emit(
-      MetronomeState(
-        accents: state.accents,
-        metrum: state.metrum,
-        tick: state.tick,
-        asset: asset,
-        tempo: state.tempo,
-      ),
-    );
+    emit(state.copyWith(asset: asset));
   }
 
-  void setTempo(int durationInMilliseconds) {
+  Future<void> setTempo(int durationInMilliseconds) async {
     emit(state.copyWith(tempo: durationInMilliseconds));
-    sub?.cancel();
-    _pause.execute();
-    sendMessageToNative();
+    Debounce.run(() async {
+      sub?.cancel();
+      _pause.execute();
+      await Future.delayed(
+          const Duration(milliseconds: 100), () => sendMessageToNative());
+    }, 100);
   }
 }
