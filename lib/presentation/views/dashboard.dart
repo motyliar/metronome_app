@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 import 'package:metronome/data/infrastructure/metronome/metronome_tick_impl.dart';
 
@@ -72,6 +73,35 @@ class Dashboard extends StatelessWidget {
                             color: getColor(state.metrum, index))),
                   ),
                 ),
+                const SizedBox(
+                  height: 20,
+                ),
+                Text(state.tempo.toString()),
+                const SizedBox(
+                  height: 20,
+                ),
+                BlocConsumer<TempoCatcherCubit, int>(
+                  listener: (context, tempo) {
+                    context.read<MetronomeCubit>().setTempo(tempo);
+                  },
+                  builder: (context, state) {
+                    return BlocBuilder<TempoCatcherCubit, int>(
+                      builder: (context, tempo) {
+                        return GestureDetector(
+                            onTap: () {
+                              context.read<TempoCatcherCubit>().changeTempo();
+                              print(tempo);
+                            },
+                            child: Container(
+                              width: 200,
+                              height: 100,
+                              color: Colors.blue,
+                              child: const Text("TAP TEMPO"),
+                            ));
+                      },
+                    );
+                  },
+                )
               ],
             );
           },
