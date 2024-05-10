@@ -20,5 +20,5 @@ class MetronomeState extends Equatable {
   final AudioAsset asset;
 
   @override
-  List<Object> get props => [metrum, tick, accents];
+  List<Object> get props => [metrum, tick, accents, asset];
 }
