@@ -10,24 +10,32 @@ import 'package:metronome/domain/metronome/audio_asset.dart';
 
 import 'package:metronome/domain/usecase/send_message_usecase.dart';
 import 'package:metronome/domain/usecase/start_usecase.dart';
+import 'package:metronome/domain/usecase/stop_player_usecase.dart';
 
 part 'metronome_state.dart';
 
 class MetronomeCubit extends Cubit<MetronomeState> {
   final StartTimerUsecase _start;
+  final StopPlayerUsecase _stop;
   final ConnectUsecase _send;
-  MetronomeCubit(
-      {required StartTimerUsecase start, required ConnectUsecase send})
-      : _start = start,
+  MetronomeCubit({
+    required StartTimerUsecase start,
+    required StopPlayerUsecase stop,
+    required ConnectUsecase send,
+  })  : _start = start,
+        _stop = stop,
         _send = send,
         super(MetronomeState(accents: AccentHandler()));
   StreamSubscription? sub;
   void sendMessageToNative() {
-    sub = _start.execute(const MetronomeInputs()).listen((event) {
+    sub = _start
+        .execute(const MetronomeInputs(durationInMilliseconds: 400))
+        .listen((event) {
       emit(MetronomeState(
           metrum: (event % state.tick) + 1,
           tick: state.tick,
-          accents: state.accents));
+          accents: state.accents,
+          asset: state.asset));
       int index = event % state.tick;
 
       _send.execute(
@@ -42,19 +50,32 @@ class MetronomeCubit extends Cubit<MetronomeState> {
   void stop() {
     if (sub != null) {
       sub?.cancel();
+      _stop.execute();
     }
   }
 
   void changeMetrum() {
     final accents = AccentHandler();
     accents.initAccents(5);
-    emit(MetronomeState(metrum: state.metrum, tick: 5, accents: accents));
+    emit(MetronomeState(
+        metrum: state.metrum, tick: 5, accents: accents, asset: state.asset));
   }
 
   void changeAccent(int index, Accent accent) {
     final accents = state.accents;
     accents.changeAccent(index, accent);
     emit(MetronomeState(
-        metrum: state.metrum, tick: state.tick, accents: accents));
+        metrum: state.metrum,
+        tick: state.tick,
+        accents: accents,
+        asset: state.asset));
+  }
+
+  void setAudio(AudioAsset asset) {
+    emit(MetronomeState(
+        accents: state.accents,
+        metrum: state.metrum,
+        tick: state.tick,
+        asset: asset));
   }
 }

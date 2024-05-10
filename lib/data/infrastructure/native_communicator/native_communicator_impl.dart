@@ -3,14 +3,24 @@ import 'package:metronome/domain/inputs/audio_inputs.dart';
 import 'package:metronome/domain/native_comunicator/native_communicator.dart';
 
 const String _channelName = "metronome";
-const String _methodName = "play";
+const String _playMethod = "PLAY";
+const String _initMethod = "INIT";
 
 class NativeCommunicatorImpl extends NativeCommunicator {
+  NativeCommunicatorImpl() {
+    channel = _createChannel();
+  }
+  MethodChannel? channel;
   @override
   Future<void> connect(AudioInputs inputs) async {
     final arguments = _inputToArgument(inputs);
-    final channel = _createChannel();
-    await channel.invokeMethod(_methodName, arguments);
+
+    await channel?.invokeMethod(_playMethod, arguments);
+  }
+
+  @override
+  Future<void> init() async {
+    channel?.invokeMethod(_initMethod);
   }
 
   Map<String, dynamic> _inputToArgument(AudioInputs inputs) =>
