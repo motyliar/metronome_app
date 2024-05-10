@@ -19,7 +19,10 @@ class CalculateTempoUsecase extends ManualTempoCalculator {
 
   @override
   int onStop() {
-    throw UnimplementedError();
+    end = _setValueToCurrentTime();
+
+    int timeInMilliseconds = _calculateDifferenceBetweenStartStop(end, start);
+    return calculateTempo(timeInMilliseconds);
   }
 
   int calculateTempo(int timeInMilliseconds) {
