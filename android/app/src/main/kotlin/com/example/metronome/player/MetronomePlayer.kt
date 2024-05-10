@@ -8,8 +8,6 @@ import java.lang.NullPointerException
 
 class MetronomePlayer : Player {
 
-    val soundFunc = HighSinWave.generateSound()
-
     var audioTrack: AudioTrack? = null
     private val sampleRate: Int = 44100
     private val bufferSize = AudioTrack.getMinBufferSize(sampleRate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT)
@@ -36,10 +34,6 @@ class MetronomePlayer : Player {
     }
 
     override fun play(sound: ShortArray) {
-//        if(audioTrack == null) {
-//            initPlayer()
-//        }
-
 
        Thread {
            audioTrack?.setVolume(0.3F)

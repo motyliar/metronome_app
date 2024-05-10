@@ -19,4 +19,4 @@ open class SquareWave(frequency: Double, time: Int) : TableWaveGenerator(frequen
 
 object HighSquareWave: SquareWave(frequency = 640.0, time =  10)
 object MidSquareWave: SquareWave(frequency = 540.0, time = 10)
-object LowSqureWave: SquareWave(frequency = 440.0, time = 10)
+object LowSquareWave: SquareWave(frequency = 440.0, time = 10)
