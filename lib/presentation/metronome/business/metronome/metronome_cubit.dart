@@ -7,6 +7,7 @@ import 'package:metronome/domain/inputs/audio_inputs.dart';
 import 'package:metronome/domain/inputs/metronome_d.dart';
 import 'package:metronome/domain/metronome/accent_handler.dart';
 import 'package:metronome/domain/metronome/audio_asset.dart';
+import 'package:metronome/domain/usecase/pause_metronome_usecase.dart';
 
 import 'package:metronome/domain/usecase/send_message_usecase.dart';
 import 'package:metronome/domain/usecase/start_usecase.dart';
@@ -19,14 +20,17 @@ const int _minuteInMilliseconds = 60000;
 class MetronomeCubit extends Cubit<MetronomeState> {
   final StartTimerUsecase _start;
   final StopPlayerUsecase _stop;
+  final PauseMetronomeUsecase _pause;
   final ConnectUsecase _send;
 
   MetronomeCubit({
     required StartTimerUsecase start,
     required StopPlayerUsecase stop,
+    required PauseMetronomeUsecase pause,
     required ConnectUsecase send,
   })  : _start = start,
         _stop = stop,
+        _pause = pause,
         _send = send,
         super(MetronomeState(accents: AccentHandler()));
   StreamSubscription? sub;
@@ -103,7 +107,7 @@ class MetronomeCubit extends Cubit<MetronomeState> {
   void setTempo(int durationInMilliseconds) {
     emit(state.copyWith(tempo: durationInMilliseconds));
     sub?.cancel();
-    _stop.execute();
+    _pause.execute();
     sendMessageToNative();
   }
 }
